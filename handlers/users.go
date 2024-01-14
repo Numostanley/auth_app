@@ -9,7 +9,6 @@ import (
 	"github.com/Numostanley/d8er_app/models"
 	"github.com/Numostanley/d8er_app/serializers"
 	"github.com/Numostanley/d8er_app/utils"
-	"github.com/google/uuid"
 )
 
 func HandlerCreateUser(w http.ResponseWriter, r *http.Request) {
@@ -31,16 +30,15 @@ func HandlerCreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	password, ok := utils.HashPassword(newUser.Password)
+	err = newUser.SetNewPassword(newUser.Password)
 
-	if ok != nil {
+	if err != nil {
 		data.Error = fmt.Sprintf("Password Error: %v", err)
 		data.Success = false
 		utils.RespondWithError(w, 400, data)
 		return
 	}
 
-	newUser.Password = password
 	user := db.Database.DB.Create(&newUser)
 
 	if user.Error != nil {
@@ -64,29 +62,16 @@ func GetUserHandler(w http.ResponseWriter, r *http.Request) {
 		Error:   "",
 	}
 
-	id := r.URL.Query().Get("id")
-	userID, err := uuid.Parse(id)
+	user, ok := r.Context().Value("user").(*models.User)
 
-	if err != nil {
-		data.Error = fmt.Sprintf("Error parsing uuid: %v", err)
-		data.Success = false
-		utils.RespondWithError(w, 400, data)
-		return
-	}
-
-	user := models.User{ID: userID}
-	fetchedUser := db.Database.DB.Where("id = ?", userID).First(&user)
-
-	if fetchedUser.Error != nil {
-		data.Error = fmt.Sprintf("Error getting user: %v", fetchedUser.Error)
-		data.Success = false
-		utils.RespondWithError(w, 400, data)
+	if !ok || user == nil {
+		http.Error(w, "User not found", http.StatusInternalServerError)
 		return
 	}
 
 	response := serializers.UserDetailSerializer{}
 	data.Message = "User details retrieved successfully"
-	data.Data = response.GetUserResponse(user)
+	data.Data = response.GetUserResponse(*user)
 
 	utils.RespondWithJSON(w, 200, data)
 }

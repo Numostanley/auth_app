@@ -34,7 +34,9 @@ func GetRoutes() *chi.Mux {
 	healthRouter.Get("/", handlers.HandlerReadiness)
 
 	userRouters := GetUserRouters()
+	authRouters := GetAuthRouters()
 
+	v1Router.Mount("/oauth", authRouters)
 	v1Router.Mount("/users", userRouters)
 	v1Router.Mount("/healthz", healthRouter)
 	mainRouter.Mount("/v1", v1Router)

@@ -6,22 +6,12 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"time"
 
 	"github.com/Numostanley/d8er_app/db"
 	"github.com/Numostanley/d8er_app/models"
 	"github.com/Numostanley/d8er_app/serializers"
-	"github.com/dgrijalva/jwt-go"
-	"golang.org/x/crypto/bcrypt"
+	"github.com/google/uuid"
 )
-
-func HashPassword(password string) (string, error) {
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-	if err != nil {
-		return "", err
-	}
-	return string(hashedPassword), nil
-}
 
 func RespondWithError(w http.ResponseWriter, code int, data serializers.ResponseSerializer) {
 	if code > 499 {
@@ -57,49 +47,59 @@ func CloseFile(file *os.File) {
 	}
 }
 
-func GetOauthToken(scope string, user models.User) (string, error) {
+func SeedClient() {
+	filename := "extras/clients.json"
 
-	oauthConfig := OauthConfig{}
-	oauthConfig.Initialize()
-
-	key, err := oauthConfig.GetPrivateKey()
+	file, err := OpenFile(filename)
 	if err != nil {
-		return "", fmt.Errorf("error reading private key: %v", err)
+		fmt.Println("Error:", err)
+		return
 	}
-	aud := oauthConfig.Audience
-	now := time.Now()
+	defer CloseFile(file)
 
-	tokenExpiryTime, err := oauthConfig.GetTokenExpiryTime()
+	clientParams := []models.Client{}
+
+	decoder := json.NewDecoder(file)
+	err = decoder.Decode(&clientParams)
 	if err != nil {
-		return "", fmt.Errorf("error reading tokenExpiryTime key: %v", err)
+		fmt.Println("error decoding json: ", err)
 	}
 
-	payload := map[string]interface{}{
-		"iss":          oauthConfig.Issuer,
-		"sub":          user.ID,
-		"full_name":    user.GetFullName(),
-		"email":        user.Email,
-		"phone_number": user.PhoneNumber,
-		"scope":        scope,
-		"iat":          now,
-		"aud":          aud,
-		"exp":          now.Add(time.Second * time.Duration(tokenExpiryTime)),
+	db := &db.Database.DB
+	for _, client := range clientParams {
+		models.CreateClient(*db, &client)
+		fmt.Println(
+			client,
+		)
 	}
-
-	token := jwt.NewWithClaims(jwt.SigningMethodRS256, jwt.MapClaims(payload))
-	tokenString, err := token.SignedString([]byte(key))
-	if err != nil {
-		return "", fmt.Errorf("error generating JWT token: %v", err)
-	}
-
-	user.LastLogin = &now
-	db := db.Database.DB
-	db.Save(&user)
-
-	return tokenString, nil
 }
 
-// func ComparePasswords(hashedPassword, inputPassword string) error {
-// 	err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(inputPassword))
-// 	return err
-// }
+func GetUserByID(userID uuid.UUID) (*models.User, error) {
+	user := models.User{ID: userID}
+	fetchedUser := db.Database.DB.Where("id = ?", userID).First(&user)
+
+	if fetchedUser.Error != nil {
+		return nil, fmt.Errorf("error returning user %s", fetchedUser.Error)
+	}
+	return &user, nil
+}
+
+func GetUserByEmail(email string) (*models.User, error) {
+	user := models.User{Email: email}
+	fetchedUser := db.Database.DB.Where("email = ?", email).First(&user)
+
+	if fetchedUser.Error != nil {
+		return nil, fmt.Errorf("error returning user %s", fetchedUser.Error)
+	}
+	return &user, nil
+}
+
+func GetClientByClientID(clientID string) (*models.Client, error) {
+	client := models.Client{ClientID: clientID}
+	fetchedClient := db.Database.DB.Where("client_id = ?", clientID).First(&client)
+
+	if fetchedClient.Error != nil {
+		return nil, fmt.Errorf("error returning client %s", fetchedClient.Error)
+	}
+	return &client, nil
+}

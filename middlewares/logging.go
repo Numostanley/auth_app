@@ -26,10 +26,8 @@ func LoggingMiddleware(next http.Handler) http.Handler {
 
 		wrappedResponseWriter := &StatusCapturingResponseWriter{w, http.StatusOK}
 
-		// Call the next handler in the chain
 		next.ServeHTTP(wrappedResponseWriter, r)
 
-		// Log request details
 		statusCode := wrappedResponseWriter.GetStatus()
 
 		log.Printf("[%s] %s %s - %d - %v\n", r.Method, r.URL.Path, r.RemoteAddr, statusCode, time.Since(startTime))
