@@ -70,7 +70,7 @@ func (tAuth *TokenAuthentication) DecodeToken(tokenString string, verifySignatur
 		return map[string]interface{}{}, fmt.Errorf("error reading private key: %v", err)
 	}
 
-	var t *jwt.Token
+	var token *jwt.Token
 	var claims jwt.MapClaims
 	var keyFunc jwt.Keyfunc
 
@@ -84,14 +84,14 @@ func (tAuth *TokenAuthentication) DecodeToken(tokenString string, verifySignatur
 			return privateKey.Public(), nil
 		}
 	}
-	t, err = jwt.Parse(tokenString, keyFunc)
+	token, err = jwt.Parse(tokenString, keyFunc)
 
 	if err != nil {
 		return nil, fmt.Errorf("error decoding JWT token: %v", err)
 	}
 
-	if t != nil {
-		claims, ok := t.Claims.(jwt.MapClaims)
+	if token != nil {
+		claims, ok := token.Claims.(jwt.MapClaims)
 		if !ok {
 			return nil, fmt.Errorf("error extracting claims from JWT token")
 		}

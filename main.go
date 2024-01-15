@@ -20,6 +20,7 @@ func main() {
 	}
 
 	db.InitDB()
+	// utils.SeedClient()
 
 	mainRouter := routers.GetRoutes()
 

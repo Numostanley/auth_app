@@ -6,13 +6,11 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"regexp"
 
 	"github.com/Numostanley/d8er_app/db"
 	"github.com/Numostanley/d8er_app/models"
 	"github.com/Numostanley/d8er_app/serializers"
 	"github.com/google/uuid"
-	"gorm.io/gorm"
 )
 
 func RespondWithError(w http.ResponseWriter, code int, data serializers.ResponseSerializer) {
@@ -53,7 +51,7 @@ func SeedClient() {
 
 	file, err := OpenFile(filename)
 	if err != nil {
-		fmt.Println("Error:", err)
+		log.Println("Error:", err)
 		return
 	}
 	defer CloseFile(file)
@@ -63,15 +61,19 @@ func SeedClient() {
 	decoder := json.NewDecoder(file)
 	err = decoder.Decode(&clientParams)
 	if err != nil {
-		fmt.Println("error decoding json: ", err)
+		log.Println("error decoding json: ", err)
 	}
 
 	db := &db.Database.DB
 	for _, client := range clientParams {
-		models.CreateClient(*db, &client)
-		fmt.Println(
-			client,
-		)
+		_, err := GetClientByClientID(client.ClientID)
+
+		if err != nil {
+			models.CreateClient(*db, &client)
+			log.Println(
+				client,
+			)
+		}
 	}
 }
 
@@ -103,57 +105,4 @@ func GetClientByClientID(clientID string) (*models.Client, error) {
 		return nil, fmt.Errorf("error returning client %s", fetchedClient.Error)
 	}
 	return &client, nil
-}
-
-func ValidatePassword(password string) error {
-	passwordRegex := regexp.MustCompile(`[A-Za-z]`)     // Check for at least one letter
-	digitRegex := regexp.MustCompile(`\d`)              // Check for at least one digit
-	specialCharRegex := regexp.MustCompile(`[@$!%*?&]`) // Check for at least one special character
-
-	if len(password) < 6 || !passwordRegex.MatchString(password) || !digitRegex.MatchString(password) || !specialCharRegex.MatchString(password) {
-		return fmt.Errorf("invalid password format")
-	}
-
-	return nil
-}
-
-func UserExistsByEmail(db *gorm.DB, emailToCheck string) (bool, error) {
-	var user models.User
-	result := db.Where("email = ?", emailToCheck).First(&user)
-	if result.Error == gorm.ErrRecordNotFound {
-		return false, nil
-	} else if result.Error != nil {
-		return false, result.Error
-	}
-	return true, nil
-}
-
-func UserExistsByPhone(db *gorm.DB, phoneToCheck string) (bool, error) {
-	var user models.User
-	result := db.Where("phone_number = ?", phoneToCheck).First(&user)
-	if result.Error == gorm.ErrRecordNotFound {
-		return false, nil
-	} else if result.Error != nil {
-		return false, result.Error
-	}
-	return true, nil
-}
-
-func UserValidation(user *models.User) error {
-	if user.Email == "" {
-		return fmt.Errorf("email is required")
-	}
-	if user.PhoneNumber == "" {
-		return fmt.Errorf("phone_number is required")
-	}
-	if user.Password == "" {
-		return fmt.Errorf("password is required")
-	}
-	if user.FirstName == "" {
-		return fmt.Errorf("first_name is required")
-	}
-	if user.LastName == "" {
-		return fmt.Errorf("last_name is required")
-	}
-	return nil
 }
