@@ -9,7 +9,7 @@ import (
 func GetUserRouters() *chi.Mux {
 	userRouter := chi.NewRouter()
 
-	userRouter.Post("/", handlers.HandlerCreateUser)
+	userRouter.Post("/", handlers.CreateUserHandler)
 	userRouter.Get("/", middlewares.AuthenticationMiddleware(handlers.GetUserHandler))
 
 	return userRouter

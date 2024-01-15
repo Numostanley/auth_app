@@ -11,7 +11,7 @@ import (
 	"github.com/Numostanley/d8er_app/utils"
 )
 
-func HandlerCreateUser(w http.ResponseWriter, r *http.Request) {
+func CreateUserHandler(w http.ResponseWriter, r *http.Request) {
 	data := serializers.ResponseSerializer{
 		Success: true,
 		Message: "",
@@ -25,6 +25,39 @@ func HandlerCreateUser(w http.ResponseWriter, r *http.Request) {
 	err := decoder.Decode(&newUser)
 	if err != nil {
 		data.Error = fmt.Sprintf("Error parsing JSON: %v", err)
+		data.Success = false
+		utils.RespondWithError(w, 400, data)
+		return
+	}
+
+	err = utils.UserValidation(&newUser)
+
+	if err != nil {
+		data.Error = fmt.Sprintf("Validation Error: %s", err)
+		data.Success = false
+		utils.RespondWithError(w, 400, data)
+		return
+	}
+
+	email_exists, _ := utils.UserExistsByEmail(db.Database.DB, newUser.Email)
+	if email_exists {
+		data.Error = "email already exists"
+		data.Success = false
+		utils.RespondWithError(w, 400, data)
+		return
+	}
+
+	phone_number_exists, _ := utils.UserExistsByPhone(db.Database.DB, newUser.PhoneNumber)
+	if phone_number_exists {
+		data.Error = "phone already exists"
+		data.Success = false
+		utils.RespondWithError(w, 400, data)
+		return
+	}
+
+	err = utils.ValidatePassword(newUser.Password)
+	if err != nil {
+		data.Error = fmt.Sprintf("Password Error: %v", err)
 		data.Success = false
 		utils.RespondWithError(w, 400, data)
 		return
@@ -48,13 +81,13 @@ func HandlerCreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	response := serializers.UserDetailSerializer{}
-	data.Data = response.GetUserResponse(newUser)
+	data.Data = response.GetUserResponse(&newUser)
 	data.Message = "User Created Successfully"
 
 	utils.RespondWithJSON(w, 200, data)
 }
 
-func GetUserHandler(w http.ResponseWriter, r *http.Request) {
+func GetUserHandler(w http.ResponseWriter, r *http.Request, user models.User) {
 	data := serializers.ResponseSerializer{
 		Success: true,
 		Message: "",
@@ -62,16 +95,9 @@ func GetUserHandler(w http.ResponseWriter, r *http.Request) {
 		Error:   "",
 	}
 
-	user, ok := r.Context().Value("user").(*models.User)
-
-	if !ok || user == nil {
-		http.Error(w, "User not found", http.StatusInternalServerError)
-		return
-	}
-
 	response := serializers.UserDetailSerializer{}
 	data.Message = "User details retrieved successfully"
-	data.Data = response.GetUserResponse(*user)
+	data.Data = response.GetUserResponse(&user)
 
 	utils.RespondWithJSON(w, 200, data)
 }

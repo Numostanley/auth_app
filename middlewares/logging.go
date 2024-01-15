@@ -30,6 +30,6 @@ func LoggingMiddleware(next http.Handler) http.Handler {
 
 		statusCode := wrappedResponseWriter.GetStatus()
 
-		log.Printf("[%s] %s %s - %d - %v\n", r.Method, r.URL.Path, r.RemoteAddr, statusCode, time.Since(startTime))
+		log.Printf("[%s] %s - %s - %s - %d - %v\n", r.Method, r.URL.Path, r.RemoteAddr, r.UserAgent(), statusCode, time.Since(startTime))
 	})
 }

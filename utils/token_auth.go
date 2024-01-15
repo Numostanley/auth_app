@@ -43,8 +43,13 @@ func (tAuth *TokenAuthentication) GetOauthToken(scope string, user models.User) 
 		"exp":          now.Add(time.Second * time.Duration(tokenExpiryTime)),
 	}
 
+	privateKey, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(key))
+	if err != nil {
+		return "", fmt.Errorf("error parsing RSA private key: %v", err)
+	}
+
 	token := jwt.NewWithClaims(jwt.SigningMethodRS256, jwt.MapClaims(payload))
-	tokenString, err := token.SignedString([]byte(key))
+	tokenString, err := token.SignedString(privateKey)
 	if err != nil {
 		return "", fmt.Errorf("error generating JWT token: %v", err)
 	}
@@ -60,17 +65,25 @@ func (tAuth *TokenAuthentication) DecodeToken(tokenString string, verifySignatur
 	oauthConfig := OauthConfig{}
 	oauthConfig.Initialize()
 
-	var err error
+	key, err := oauthConfig.GetPrivateKey()
+	if err != nil {
+		return map[string]interface{}{}, fmt.Errorf("error reading private key: %v", err)
+	}
+
 	var t *jwt.Token
 	var claims jwt.MapClaims
 	var keyFunc jwt.Keyfunc
 
 	if verifySignature {
+		privateKey, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(key))
+		if err != nil {
+			return nil, fmt.Errorf("error parsing RSA private key: %v", err)
+		}
+
 		keyFunc = func(token *jwt.Token) (interface{}, error) {
-			return oauthConfig.PublicKey, nil
+			return privateKey.Public(), nil
 		}
 	}
-
 	t, err = jwt.Parse(tokenString, keyFunc)
 
 	if err != nil {
@@ -84,7 +97,6 @@ func (tAuth *TokenAuthentication) DecodeToken(tokenString string, verifySignatur
 		}
 		return claims, nil
 	}
-
 	return claims, nil
 }
 
@@ -106,19 +118,28 @@ func (tAuth *TokenAuthentication) Authenticate(request *http.Request) (map[strin
 		return nil, nil, err
 	}
 
-	expiryTime, ok := decodedToken["expiry_time"].(float64)
+	expiryTime, ok := decodedToken["exp"]
 	if !ok {
 		return nil, nil, fmt.Errorf("invalid expiry_time in JWT payload")
 	}
 
-	expiryTimeInUnix := int64(expiryTime)
-	expiryDateTime := time.Unix(expiryTimeInUnix, 0)
+	expiryTimeString, ok := expiryTime.(string)
+	if !ok {
+		return nil, nil, fmt.Errorf("invalid expiry_time format in JWT payload")
+	}
 
-	if time.Now().After(expiryDateTime) {
+	expiryDateTime, err := time.Parse(time.RFC3339Nano, expiryTimeString)
+	if err != nil {
+		return nil, nil, fmt.Errorf("error parsing expiry_time: %v", err)
+	}
+
+	expiryTimeInUnix := expiryDateTime.Unix()
+
+	if time.Now().After(time.Unix(expiryTimeInUnix, 0)) {
 		return nil, nil, fmt.Errorf("token is expired")
 	}
 
-	issuer, ok := decodedToken["issuer"].(string)
+	issuer, ok := decodedToken["iss"].(string)
 	if !ok {
 		return nil, nil, fmt.Errorf("invalid issuer in JWT payload")
 	}

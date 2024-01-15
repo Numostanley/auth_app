@@ -12,15 +12,15 @@ type User struct {
 	ID              uuid.UUID  `json:"id" gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
 	CreatedAt       time.Time  `json:"created_at"`
 	UpdatedAt       time.Time  `json:"updated_at"`
-	FirstName       string     `json:"first_name" gorm:"text;not null"`
-	LastName        string     `json:"last_name" gorm:"text;not null"`
-	Email           string     `json:"email" gorm:"not null;uniqueIndex"`
-	Password        string     `json:"password" gorm:"not null"`
+	FirstName       string     `json:"first_name" gorm:"type:text;not null"`
+	LastName        string     `json:"last_name" gorm:"type:text;not null"`
+	Email           string     `json:"email" gorm:"type:text;not null;uniqueIndex"`
+	Password        string     `json:"password" gorm:"type:text;not null"`
 	LastLogin       *time.Time `json:"last_login"`
 	Gender          *string    `json:"gender"`
 	IsSuperAdmin    bool       `json:"is_super_admin" gorm:"default:false"`
 	IsEmailVerified bool       `json:"is_email_verified" gorm:"default:false"`
-	PhoneNumber     string     `json:"phone_number" gorm:"text"`
+	PhoneNumber     string     `json:"phone_number" gorm:"type:text;not null;uniqueIndex"`
 }
 
 func (user *User) GetFullName() string {

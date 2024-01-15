@@ -1,33 +1,35 @@
 package middlewares
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 
+	"github.com/Numostanley/d8er_app/models"
+	"github.com/Numostanley/d8er_app/serializers"
 	"github.com/Numostanley/d8er_app/utils"
 )
 
-type contextKey string
+type authedHandler func(http.ResponseWriter, *http.Request, models.User)
 
-const (
-	decodedTokenKey contextKey = "decodedToken"
-	userKey         contextKey = "user"
-)
+func AuthenticationMiddleware(handler authedHandler) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		data := serializers.ResponseSerializer{
+			Success: true,
+			Message: "",
+			Data:    struct{}{},
+			Error:   "",
+		}
 
-func AuthenticationMiddleware(handler http.HandlerFunc) http.HandlerFunc {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		authenticator := utils.TokenAuthentication{}
 
-		decodedToken, user, err := authenticator.Authenticate(r)
+		_, user, err := authenticator.Authenticate(r)
 		if err != nil {
-			http.Error(w, fmt.Sprintf("Authentication error: %v", err), http.StatusUnauthorized)
+			data.Success = false
+			data.Error = fmt.Sprintf("Authentication error: %v", err)
+			utils.RespondWithError(w, http.StatusUnauthorized, data)
 			return
 		}
 
-		ctx := context.WithValue(r.Context(), decodedTokenKey, decodedToken)
-		ctx = context.WithValue(ctx, userKey, user)
-
-		handler.ServeHTTP(w, r.WithContext(ctx))
-	})
+		handler(w, r, *user)
+	}
 }
