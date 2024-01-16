@@ -18,17 +18,13 @@ type User struct {
 	Password        string     `json:"password" gorm:"type:text;not null"`
 	LastLogin       *time.Time `json:"last_login"`
 	Gender          *string    `json:"gender"`
-	IsSuperAdmin    bool       `json:"is_super_admin" gorm:"default:false"`
+	IsAdmin         bool       `json:"is_admin" gorm:"default:false"`
 	IsEmailVerified bool       `json:"is_email_verified" gorm:"default:false"`
 	PhoneNumber     string     `json:"phone_number" gorm:"type:text;not null;uniqueIndex"`
 }
 
 func (user *User) GetFullName() string {
 	return fmt.Sprintf("%s %s", user.FirstName, user.LastName)
-}
-
-func (u *User) IsSuperUser() bool {
-	return u.IsSuperAdmin
 }
 
 func (u *User) ValidatePassword(password string) bool {
@@ -55,15 +51,15 @@ func (u *User) SetNewPassword(password string) error {
 }
 
 func (u *User) ValidateUserAgainstClientID(clientID string) bool {
-	if u.IsSuperAdmin {
-		for _, client := range []string{D8erAppClients.AppUserClients, D8erAppClients.SuperAdminUserClient} {
+	if u.IsAdmin {
+		for _, client := range []string{AppClients.AdminAppClient, AppClients.MobileAppClient} {
 			if clientID == client {
 				return true
 			}
 		}
 		return false
 	} else {
-		return clientID == D8erAppClients.AppUserClients
+		return clientID == AppClients.MobileAppClient
 	}
 }
 

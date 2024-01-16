@@ -74,10 +74,10 @@ func CreateClient(db *gorm.DB, client *Client) error {
 	return nil
 }
 
-var D8erAppClients = struct {
-	SuperAdminUserClient string
-	AppUserClients       string
+var AppClients = struct {
+	AdminAppClient  string
+	MobileAppClient string
 }{
-	SuperAdminUserClient: "D8ERSuperAdminClient",
-	AppUserClients:       "D8ERAppClient",
+	AdminAppClient:  "AdminAppClient",
+	MobileAppClient: "MobileAppClient",
 }

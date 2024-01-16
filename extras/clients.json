@@ -1,20 +1,20 @@
 [
     {
-      "client_id": "D8ERSuperAdminClient",
+      "client_id": "AdminAppClient",
       "client_secret": "f7fc5d2f2f2944009117a78ed54b2ea2@@z5h25@p0",
-      "role": "D8ERSuperAdminUser",
+      "role": "AdminAppUser",
       "response_type": "code",
       "scope": "admin:write admin:read",
       "grant_types": "password authorization_code refresh_token",
-      "redirect_uris": "https://admin.d8er.app/callback"
+      "redirect_uris": "https://api.d8er.app/admin"
     },
     {
-      "client_id": "D8ERAppClient",
+      "client_id": "MobileAppClient",
       "client_secret": "c9g()vk$5bb3ab804f49f44b289be70ae523390659a",
-      "role": "D8ERAppUser",
+      "role": "MobileAppUser",
       "response_type": "code",
       "scope": "user:write user:read",
       "grant_types": "password authorization_code refresh_token",
-      "redirect_uris": "https://app.d8er.app/callback"
+      "redirect_uris": "https://api.d8er.app/mobile"
     }
 ]
