@@ -7,6 +7,7 @@ import (
 
 	"github.com/Numostanley/d8er_app/db"
 	"github.com/Numostanley/d8er_app/routers"
+	"github.com/Numostanley/d8er_app/utils"
 	"github.com/joho/godotenv"
 )
 
@@ -20,7 +21,7 @@ func main() {
 	}
 
 	db.InitDB()
-	// utils.SeedClient()
+	utils.SeedClient()
 
 	mainRouter := routers.GetRoutes()
 

@@ -72,6 +72,7 @@ func CreateUserHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	newUser.CreateUserID()
 	user := db.Database.DB.Create(&newUser)
 
 	if user.Error != nil {

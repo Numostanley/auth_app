@@ -62,7 +62,9 @@ func InitDB() {
 	}
 
 	log.Println("Running Migrations")
-	db.AutoMigrate(&models.User{}, &models.Client{})
+	if err := db.AutoMigrate(&models.User{}, &models.Client{}); err != nil {
+		panic(err)
+	}
 	log.Println("Migrations Complete")
 
 	Database = DBInstance{

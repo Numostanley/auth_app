@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  web:
+    build:
+      context: .
+    env_file:
+      - src/.env
+    ports:
+      - 8000:8000
+    depends_on:
+      - db
+    restart: on-failure
+
+  db:
+    image: postgres:latest
+    environment:
+      - POSTGRES_USER=d8er
+      - POSTGRES_PASSWORD=d8er
+      - POSTGRES_DB=d8er
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres-db:/var/lib/postgressql/data
+      
+volumes:
+  postgres-db:

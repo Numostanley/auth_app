@@ -9,7 +9,7 @@ import (
 )
 
 type User struct {
-	ID              uuid.UUID  `json:"id" gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
+	ID              uuid.UUID  `json:"id" gorm:"type:uuid;primaryKey"`
 	CreatedAt       time.Time  `json:"created_at"`
 	UpdatedAt       time.Time  `json:"updated_at"`
 	FirstName       string     `json:"first_name" gorm:"type:text;not null"`
@@ -21,6 +21,10 @@ type User struct {
 	IsAdmin         bool       `json:"is_admin" gorm:"default:false"`
 	IsEmailVerified bool       `json:"is_email_verified" gorm:"default:false"`
 	PhoneNumber     string     `json:"phone_number" gorm:"type:text;not null;uniqueIndex"`
+}
+
+func (u *User) CreateUserID() {
+	u.ID = uuid.New()
 }
 
 func (user *User) GetFullName() string {

@@ -10,7 +10,7 @@ import (
 )
 
 type Client struct {
-	ID           uuid.UUID `gorm:"type:uuid;primaryKey;default:uuid_generate_v4()" json:"id"`
+	ID           uuid.UUID `gorm:"type:uuid;primaryKey" json:"id"`
 	ClientID     string    `json:"client_id" gorm:"unique"`
 	ClientSecret string    `json:"client_secret"`
 	Name         string    `json:"name"`
@@ -63,6 +63,7 @@ func validateList(input string, list string) bool {
 func CreateClient(db *gorm.DB, client *Client) error {
 	client.ClientSecret = encodeClientSecret(client.ClientSecret)
 
+	client.ID = uuid.New()
 	result := db.Create(client)
 
 	if result.Error != nil {
