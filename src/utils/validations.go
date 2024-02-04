@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"errors"
 	"fmt"
 	"regexp"
 
@@ -23,7 +24,7 @@ func ValidatePassword(password string) error {
 func UserExistsByEmail(db *gorm.DB, emailToCheck string) (bool, error) {
 	var user models.User
 	result := db.Where("email = ?", emailToCheck).First(&user)
-	if result.Error == gorm.ErrRecordNotFound {
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		return false, nil
 	} else if result.Error != nil {
 		return false, result.Error
@@ -34,7 +35,7 @@ func UserExistsByEmail(db *gorm.DB, emailToCheck string) (bool, error) {
 func UserExistsByPhone(db *gorm.DB, phoneToCheck string) (bool, error) {
 	var user models.User
 	result := db.Where("phone_number = ?", phoneToCheck).First(&user)
-	if result.Error == gorm.ErrRecordNotFound {
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		return false, nil
 	} else if result.Error != nil {
 		return false, result.Error

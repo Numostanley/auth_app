@@ -19,18 +19,33 @@ type OauthConfig struct {
 }
 
 func (core *OauthConfig) Initialize() {
-	godotenv.Load()
+	err := godotenv.Load()
+	if err != nil {
+		return
+	}
 
-	core.GetIsuuer()
-	core.GetPrivateKey()
-	core.GetPublicKey()
+	core.GetIssuer()
+	_, err = core.GetPrivateKey()
+	if err != nil {
+		return
+	}
+	_, err = core.GetPublicKey()
+	if err != nil {
+		return
+	}
 	core.GetSigningAlgorithm()
 	core.GetAudience()
-	core.GetTokenExpiryTime()
-	core.GetRefreshTokenExpiryTime()
+	_, err = core.GetTokenExpiryTime()
+	if err != nil {
+		return
+	}
+	_, err = core.GetRefreshTokenExpiryTime()
+	if err != nil {
+		return
+	}
 }
 
-func (core *OauthConfig) GetIsuuer() string {
+func (core *OauthConfig) GetIssuer() string {
 	issuer := os.Getenv("ISSUER")
 	core.Issuer = issuer
 	return issuer

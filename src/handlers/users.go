@@ -39,16 +39,16 @@ func CreateUserHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	email_exists, _ := utils.UserExistsByEmail(db.Database.DB, newUser.Email)
-	if email_exists {
+	emailExists, _ := utils.UserExistsByEmail(db.Database.DB, newUser.Email)
+	if emailExists {
 		data.Error = "email already exists"
 		data.Success = false
 		utils.RespondWithError(w, 400, data)
 		return
 	}
 
-	phone_number_exists, _ := utils.UserExistsByPhone(db.Database.DB, newUser.PhoneNumber)
-	if phone_number_exists {
+	phoneNumberExists, _ := utils.UserExistsByPhone(db.Database.DB, newUser.PhoneNumber)
+	if phoneNumberExists {
 		data.Error = "phone already exists"
 		data.Success = false
 		utils.RespondWithError(w, 400, data)

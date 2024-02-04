@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -27,22 +28,25 @@ func (l *CustomLogger) Warn(context.Context, string, ...interface{}) {}
 func (l *CustomLogger) Error(context.Context, string, ...interface{}) {}
 
 func (l *CustomLogger) Trace(ctx context.Context, begin time.Time, fc func() (string, int64), err error) {
-	if err != nil && err != gorm.ErrRecordNotFound {
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		// Log only if it's an error other than RecordNotFound
 		sql, rows := fc()
 		log.Printf("%s [%.3fms] %s rows:%d\n", err, float64(time.Since(begin))/float64(time.Millisecond), sql, rows)
 	}
 }
 
-type DBInstance struct {
+type Instance struct {
 	DB *gorm.DB
 }
 
-var Database DBInstance
+var Database Instance
 
 func InitDB() {
 
-	godotenv.Load()
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading env", err)
+	}
 
 	dsn := fmt.Sprintf(
 		"host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Africa/Lagos",
@@ -67,7 +71,7 @@ func InitDB() {
 	}
 	log.Println("Migrations Complete")
 
-	Database = DBInstance{
+	Database = Instance{
 		DB: db,
 	}
 }

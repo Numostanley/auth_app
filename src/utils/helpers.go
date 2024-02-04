@@ -29,7 +29,10 @@ func RespondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
 	}
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(code)
-	w.Write(data)
+	_, err = w.Write(data)
+	if err != nil {
+		return
+	}
 }
 
 func OpenFile(filename string) (*os.File, error) {
@@ -42,7 +45,10 @@ func OpenFile(filename string) (*os.File, error) {
 
 func CloseFile(file *os.File) {
 	if file != nil {
-		file.Close()
+		err := file.Close()
+		if err != nil {
+			return
+		}
 	}
 }
 
@@ -56,7 +62,7 @@ func SeedClient() {
 	}
 	defer CloseFile(file)
 
-	clientParams := []models.Client{}
+	var clientParams []models.Client
 
 	decoder := json.NewDecoder(file)
 	err = decoder.Decode(&clientParams)
@@ -64,12 +70,15 @@ func SeedClient() {
 		log.Println("error decoding json: ", err)
 	}
 
-	db := &db.Database.DB
+	database := &db.Database.DB
 	for _, client := range clientParams {
 		_, err := GetClientByClientID(client.ClientID)
 
 		if err != nil {
-			models.CreateClient(*db, &client)
+			err := models.CreateClient(*database, &client)
+			if err != nil {
+				return
+			}
 			log.Println(
 				client,
 			)

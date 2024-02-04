@@ -55,8 +55,8 @@ func (tAuth *TokenAuthentication) GetOauthToken(scope string, user models.User) 
 	}
 
 	user.LastLogin = &now
-	db := db.Database.DB
-	db.Save(&user)
+	database := db.Database.DB
+	database.Save(&user)
 
 	return tokenString, nil
 }
@@ -200,6 +200,7 @@ func PerformAuthentication(clientID, clientSecret, grantType, email, password, s
 	}
 
 	if !user.ValidateUserAgainstClientID(clientID) {
+
 		return client, nil, fmt.Errorf("invalid_client_and_user")
 	}
 

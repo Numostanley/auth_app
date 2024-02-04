@@ -12,7 +12,10 @@ import (
 )
 
 func GetRoutes() *chi.Mux {
-	godotenv.Load()
+	err := godotenv.Load()
+	if err != nil {
+		return nil
+	}
 	allowedHosts := os.Getenv("ALLOWED_HOSTS")
 
 	mainRouter := chi.NewRouter()
