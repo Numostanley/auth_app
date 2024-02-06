@@ -1,8 +1,12 @@
 package models
 
 import (
+	"errors"
 	"fmt"
+	"regexp"
 	"time"
+
+	"gorm.io/gorm"
 
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
@@ -23,21 +27,60 @@ type User struct {
 	PhoneNumber     string     `json:"phone_number" gorm:"type:text;not null;uniqueIndex"`
 }
 
-func (u *User) CreateUserID() {
-	u.ID = uuid.New()
+func (user *User) CreateUserID() {
+	user.ID = uuid.New()
+}
+
+func (user *User) CreateUser(db *gorm.DB) error {
+	err := UserValidation(user)
+	if err != nil {
+		return err
+	}
+
+	emailExists, _ := UserExistsByEmail(db, user.Email)
+	if emailExists {
+		err = fmt.Errorf("email already exists")
+		return err
+	}
+
+	phoneNumberExists, _ := UserExistsByPhone(db, user.PhoneNumber)
+	if phoneNumberExists {
+		err = fmt.Errorf("phone already exists")
+		return err
+	}
+
+	err = ValidatePassword(user.Password)
+	if err != nil {
+		err = fmt.Errorf("password Error: %v", err)
+		return err
+	}
+
+	err = user.SetNewPassword(user.Password)
+	if err != nil {
+		err = fmt.Errorf("password Error: %v", err)
+		return err
+	}
+
+	user.CreateUserID()
+	newUser := db.Create(&user)
+	if newUser.Error != nil {
+		err = fmt.Errorf("error creating user: %v", newUser.Error)
+		return err
+	}
+	return nil
 }
 
 func (user *User) GetFullName() string {
 	return fmt.Sprintf("%s %s", user.FirstName, user.LastName)
 }
 
-func (u *User) ValidatePassword(password string) bool {
-	err := ComparePasswords(u.Password, password)
+func (user *User) ValidatePassword(password string) bool {
+	err := ComparePasswords(user.Password, password)
 	return err == nil
 }
 
-func (u *User) HasActiveSession() bool {
-	lastLogin := u.LastLogin
+func (user *User) HasActiveSession() bool {
+	lastLogin := user.LastLogin
 	if lastLogin != nil {
 		timeDifference := time.Since(*lastLogin)
 		return timeDifference < 30*time.Minute
@@ -45,17 +88,17 @@ func (u *User) HasActiveSession() bool {
 	return false
 }
 
-func (u *User) SetNewPassword(password string) error {
+func (user *User) SetNewPassword(password string) error {
 	password, err := HashPassword(password)
 	if err != nil {
 		return err
 	}
-	u.Password = password
+	user.Password = password
 	return nil
 }
 
-func (u *User) ValidateUserAgainstClientID(clientID string) bool {
-	if u.IsAdmin {
+func (user *User) ValidateUserAgainstClientID(clientID string) bool {
+	if user.IsAdmin {
 		for _, client := range []string{AppClients.AdminAppClient, AppClients.MobileAppClient} {
 			if clientID == client {
 				return true
@@ -78,4 +121,77 @@ func HashPassword(password string) (string, error) {
 func ComparePasswords(hashedPassword, inputPassword string) error {
 	err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(inputPassword))
 	return err
+}
+
+func UserExistsByEmail(db *gorm.DB, emailToCheck string) (bool, error) {
+	var user User
+	result := db.Where("email = ?", emailToCheck).First(&user)
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		return false, nil
+	} else if result.Error != nil {
+		return false, result.Error
+	}
+	return true, nil
+}
+
+func UserExistsByPhone(db *gorm.DB, phoneToCheck string) (bool, error) {
+	var user User
+	result := db.Where("phone_number = ?", phoneToCheck).First(&user)
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		return false, nil
+	} else if result.Error != nil {
+		return false, result.Error
+	}
+	return true, nil
+}
+
+func UserValidation(user *User) error {
+	if user.Email == "" {
+		return fmt.Errorf("email is required")
+	}
+	if user.PhoneNumber == "" {
+		return fmt.Errorf("phone_number is required")
+	}
+	if user.Password == "" {
+		return fmt.Errorf("password is required")
+	}
+	if user.FirstName == "" {
+		return fmt.Errorf("first_name is required")
+	}
+	if user.LastName == "" {
+		return fmt.Errorf("last_name is required")
+	}
+	return nil
+}
+
+func GetUserByID(userID uuid.UUID, db *gorm.DB) (*User, error) {
+	user := User{ID: userID}
+	fetchedUser := db.Where("id = ?", userID).First(&user)
+
+	if fetchedUser.Error != nil {
+		return nil, fmt.Errorf("error returning user %s", fetchedUser.Error)
+	}
+	return &user, nil
+}
+
+func GetUserByEmail(email string, db *gorm.DB) (*User, error) {
+	user := User{Email: email}
+	fetchedUser := db.Where("email = ?", email).First(&user)
+
+	if fetchedUser.Error != nil {
+		return nil, fmt.Errorf("error returning user %s", fetchedUser.Error)
+	}
+	return &user, nil
+}
+
+func ValidatePassword(password string) error {
+	passwordRegex := regexp.MustCompile(`[A-Za-z]`)     // Check for at least one letter
+	digitRegex := regexp.MustCompile(`\d`)              // Check for at least one digit
+	specialCharRegex := regexp.MustCompile(`[@$!%*?&]`) // Check for at least one special character
+
+	if len(password) < 6 || !passwordRegex.MatchString(password) || !digitRegex.MatchString(password) || !specialCharRegex.MatchString(password) {
+		return fmt.Errorf("invalid password format")
+	}
+
+	return nil
 }

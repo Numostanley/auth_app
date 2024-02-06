@@ -10,7 +10,6 @@ import (
 	"github.com/Numostanley/d8er_app/db"
 	"github.com/Numostanley/d8er_app/models"
 	"github.com/Numostanley/d8er_app/serializers"
-	"github.com/google/uuid"
 )
 
 func RespondWithError(w http.ResponseWriter, code int, data serializers.ResponseSerializer) {
@@ -84,26 +83,6 @@ func SeedClient() {
 			)
 		}
 	}
-}
-
-func GetUserByID(userID uuid.UUID) (*models.User, error) {
-	user := models.User{ID: userID}
-	fetchedUser := db.Database.DB.Where("id = ?", userID).First(&user)
-
-	if fetchedUser.Error != nil {
-		return nil, fmt.Errorf("error returning user %s", fetchedUser.Error)
-	}
-	return &user, nil
-}
-
-func GetUserByEmail(email string) (*models.User, error) {
-	user := models.User{Email: email}
-	fetchedUser := db.Database.DB.Where("email = ?", email).First(&user)
-
-	if fetchedUser.Error != nil {
-		return nil, fmt.Errorf("error returning user %s", fetchedUser.Error)
-	}
-	return &user, nil
 }
 
 func GetClientByClientID(clientID string) (*models.Client, error) {

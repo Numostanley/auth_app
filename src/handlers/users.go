@@ -29,54 +29,11 @@ func CreateUserHandler(w http.ResponseWriter, r *http.Request) {
 		utils.RespondWithError(w, 400, data)
 		return
 	}
-
-	err = utils.UserValidation(&newUser)
-
-	if err != nil {
-		data.Error = fmt.Sprintf("Validation Error: %s", err)
-		data.Success = false
-		utils.RespondWithError(w, 400, data)
-		return
-	}
-
-	emailExists, _ := utils.UserExistsByEmail(db.Database.DB, newUser.Email)
-	if emailExists {
-		data.Error = "email already exists"
-		data.Success = false
-		utils.RespondWithError(w, 400, data)
-		return
-	}
-
-	phoneNumberExists, _ := utils.UserExistsByPhone(db.Database.DB, newUser.PhoneNumber)
-	if phoneNumberExists {
-		data.Error = "phone already exists"
-		data.Success = false
-		utils.RespondWithError(w, 400, data)
-		return
-	}
-
-	err = utils.ValidatePassword(newUser.Password)
-	if err != nil {
-		data.Error = fmt.Sprintf("Password Error: %v", err)
-		data.Success = false
-		utils.RespondWithError(w, 400, data)
-		return
-	}
-
-	err = newUser.SetNewPassword(newUser.Password)
+	database := db.Database.DB
+	err = newUser.CreateUser(database)
 
 	if err != nil {
-		data.Error = fmt.Sprintf("Password Error: %v", err)
-		data.Success = false
-		utils.RespondWithError(w, 400, data)
-		return
-	}
-
-	newUser.CreateUserID()
-	user := db.Database.DB.Create(&newUser)
-
-	if user.Error != nil {
-		data.Error = fmt.Sprintf("Error creating user: %v", user.Error)
+		data.Error = fmt.Sprintf("Error creating user: %v", err)
 		data.Success = false
 		utils.RespondWithError(w, 400, data)
 		return

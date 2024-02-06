@@ -158,7 +158,9 @@ func (tAuth *TokenAuthentication) Authenticate(request *http.Request) (map[strin
 		return nil, nil, fmt.Errorf("error parsing user ID: %v", err)
 	}
 
-	user, err := GetUserByID(userID)
+	database := db.Database.DB
+
+	user, err := models.GetUserByID(userID, database)
 	if user == nil {
 		return nil, nil, fmt.Errorf("invalid user associated with the token %s", err)
 	}
@@ -185,7 +187,8 @@ func PerformAuthentication(clientID, clientSecret, grantType, email, password, s
 		return nil, nil, fmt.Errorf("invalid_scope")
 	}
 
-	user, err := GetUserByEmail(email)
+	database := db.Database.DB
+	user, err := models.GetUserByEmail(email, database)
 
 	if err != nil {
 		return client, nil, fmt.Errorf("invalid_user %s", err)
