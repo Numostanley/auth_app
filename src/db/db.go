@@ -5,11 +5,10 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"os"
 	"time"
 
+	"github.com/Numostanley/d8er_app/env"
 	"github.com/Numostanley/d8er_app/models"
-	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -42,19 +41,16 @@ type Instance struct {
 var Database Instance
 
 func InitDB() {
-
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading env", err)
-	}
+	enV := env.GetEnv{}
+	enV.LoadEnv()
 
 	dsn := fmt.Sprintf(
 		"host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Africa/Lagos",
-		os.Getenv("PG_HOST"),
-		os.Getenv("PG_USER"),
-		os.Getenv("PG_PASSWORD"),
-		os.Getenv("PG_DATABASE"),
-		os.Getenv("PG_PORT"),
+		enV.PostgresHost,
+		enV.PostgresUser,
+		enV.PostgresPassword,
+		enV.PostgresDB,
+		enV.PostgresPort,
 	)
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{

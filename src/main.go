@@ -3,25 +3,16 @@ package main
 import (
 	"log"
 	"net/http"
-	"os"
 
 	"github.com/Numostanley/d8er_app/db"
+	"github.com/Numostanley/d8er_app/env"
 	"github.com/Numostanley/d8er_app/routers"
 	"github.com/Numostanley/d8er_app/utils"
-	"github.com/joho/godotenv"
 )
 
 func main() {
-
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading env", err)
-	}
-
-	portString := os.Getenv("PORT")
-	if portString == "" {
-		log.Fatal("PORT not found in the environment")
-	}
+	enV := env.GetEnv{}
+	enV.LoadEnv()
 
 	db.InitDB()
 	utils.SeedClient()
@@ -30,9 +21,9 @@ func main() {
 
 	server := &http.Server{
 		Handler: mainRouter,
-		Addr:    ":" + portString,
+		Addr:    ":" + enV.PortString,
 	}
 
-	log.Printf("Server starting on port %v", portString)
+	log.Printf("Server starting on port %v", enV.PortString)
 	log.Fatal(server.ListenAndServe())
 }

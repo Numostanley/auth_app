@@ -75,6 +75,16 @@ func CreateClient(db *gorm.DB, client *Client) error {
 	return nil
 }
 
+func GetClientByClientID(clientID string, db *gorm.DB) (*Client, error) {
+	client := Client{ClientID: clientID}
+	fetchedClient := db.Where("client_id = ?", clientID).First(&client)
+
+	if fetchedClient.Error != nil {
+		return nil, fmt.Errorf("error returning client %s", fetchedClient.Error)
+	}
+	return &client, nil
+}
+
 var AppClients = struct {
 	AdminAppClient  string
 	MobileAppClient string

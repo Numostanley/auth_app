@@ -1,22 +1,19 @@
 package routers
 
 import (
-	"os"
 	"strings"
 
+	"github.com/Numostanley/d8er_app/env"
 	"github.com/Numostanley/d8er_app/handlers"
 	"github.com/Numostanley/d8er_app/middlewares"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/cors"
-	"github.com/joho/godotenv"
 )
 
 func GetRoutes() *chi.Mux {
-	err := godotenv.Load()
-	if err != nil {
-		return nil
-	}
-	allowedHosts := os.Getenv("ALLOWED_HOSTS")
+	enV := env.GetEnv{}
+	enV.LoadEnv()
+	allowedHosts := enV.AllowedHosts
 
 	mainRouter := chi.NewRouter()
 	mainRouter.Use(middlewares.LoggingMiddleware)

@@ -4,8 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"math/rand"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/Numostanley/d8er_app/db"
 	"github.com/Numostanley/d8er_app/models"
@@ -71,7 +73,7 @@ func SeedClient() {
 
 	database := &db.Database.DB
 	for _, client := range clientParams {
-		_, err := GetClientByClientID(client.ClientID)
+		_, err := models.GetClientByClientID(client.ClientID, *database)
 
 		if err != nil {
 			err := models.CreateClient(*database, &client)
@@ -85,12 +87,8 @@ func SeedClient() {
 	}
 }
 
-func GetClientByClientID(clientID string) (*models.Client, error) {
-	client := models.Client{ClientID: clientID}
-	fetchedClient := db.Database.DB.Where("client_id = ?", clientID).First(&client)
-
-	if fetchedClient.Error != nil {
-		return nil, fmt.Errorf("error returning client %s", fetchedClient.Error)
-	}
-	return &client, nil
+func GenerateOTP() string {
+	rand.NewSource(time.Now().UnixNano())
+	otp := rand.Intn(900000) + 100000
+	return fmt.Sprintf("%06d", otp)
 }

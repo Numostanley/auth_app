@@ -5,7 +5,7 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/joho/godotenv"
+	"github.com/Numostanley/d8er_app/env"
 )
 
 type OauthConfig struct {
@@ -19,13 +19,8 @@ type OauthConfig struct {
 }
 
 func (core *OauthConfig) Initialize() {
-	err := godotenv.Load()
-	if err != nil {
-		return
-	}
-
 	core.GetIssuer()
-	_, err = core.GetPrivateKey()
+	_, err := core.GetPrivateKey()
 	if err != nil {
 		return
 	}
@@ -46,14 +41,16 @@ func (core *OauthConfig) Initialize() {
 }
 
 func (core *OauthConfig) GetIssuer() string {
-	issuer := os.Getenv("ISSUER")
-	core.Issuer = issuer
-	return issuer
+	enV := env.GetEnv{}
+	enV.LoadEnv()
+	core.Issuer = enV.Issuer
+	return core.Issuer
 }
 
 func (core *OauthConfig) GetPrivateKey() (string, error) {
-	privateKeyPath := os.Getenv("PRIVATE_KEY_FILE_PATH")
-	privateKey, err := os.ReadFile(privateKeyPath)
+	enV := env.GetEnv{}
+	enV.LoadEnv()
+	privateKey, err := os.ReadFile(enV.PrivateKeyPath)
 	if err != nil {
 		return "", fmt.Errorf("error reading private key: %v", err)
 	}
@@ -62,8 +59,9 @@ func (core *OauthConfig) GetPrivateKey() (string, error) {
 }
 
 func (core *OauthConfig) GetPublicKey() (string, error) {
-	publicKeyPath := os.Getenv("PUBLIC_KEY_FILE_PATH")
-	publicKey, err := os.ReadFile(publicKeyPath)
+	enV := env.GetEnv{}
+	enV.LoadEnv()
+	publicKey, err := os.ReadFile(enV.PublicKeyPath)
 	if err != nil {
 		return "", fmt.Errorf("error reading public key: %v", err)
 	}
@@ -72,20 +70,23 @@ func (core *OauthConfig) GetPublicKey() (string, error) {
 }
 
 func (core *OauthConfig) GetSigningAlgorithm() string {
-	signingAlgorithm := os.Getenv("SIGNING_ALGORITHM")
-	core.SigningAlgorithm = signingAlgorithm
-	return signingAlgorithm
+	enV := env.GetEnv{}
+	enV.LoadEnv()
+	core.SigningAlgorithm = enV.SigningAlgorithm
+	return core.SigningAlgorithm
 }
 
 func (core *OauthConfig) GetAudience() string {
-	audience := os.Getenv("ISSUER")
-	core.Audience = audience
-	return audience
+	enV := env.GetEnv{}
+	enV.LoadEnv()
+	core.Audience = enV.Issuer
+	return core.Audience
 }
 
 func (core *OauthConfig) GetTokenExpiryTime() (int, error) {
-	tokenExpiryTime := os.Getenv("TOKEN_EXPIRY_TIME")
-	intValue, err := strconv.Atoi(tokenExpiryTime)
+	enV := env.GetEnv{}
+	enV.LoadEnv()
+	intValue, err := strconv.Atoi(enV.TokenExpiryTime)
 	if err != nil {
 		return 0, fmt.Errorf("error converting string to int: %v", err)
 	}
@@ -94,8 +95,9 @@ func (core *OauthConfig) GetTokenExpiryTime() (int, error) {
 }
 
 func (core *OauthConfig) GetRefreshTokenExpiryTime() (int, error) {
-	refreshTokenExpiryTime := os.Getenv("REFRESH_TOKEN_EXPIRY_TIME")
-	intValue, err := strconv.Atoi(refreshTokenExpiryTime)
+	enV := env.GetEnv{}
+	enV.LoadEnv()
+	intValue, err := strconv.Atoi(enV.RefreshTokenExpiryTime)
 	if err != nil {
 		return 0, fmt.Errorf("error converting string to int: %v", err)
 	}

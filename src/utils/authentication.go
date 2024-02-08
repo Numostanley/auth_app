@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"encoding/base64"
 	"fmt"
 	"net/http"
 	"strings"
@@ -169,7 +170,8 @@ func (tAuth *TokenAuthentication) Authenticate(request *http.Request) (map[strin
 }
 
 func PerformAuthentication(clientID, clientSecret, grantType, email, password, scope string) (*models.Client, *models.User, error) {
-	client, err := GetClientByClientID(clientID)
+	database := db.Database.DB
+	client, err := models.GetClientByClientID(clientID, database)
 
 	if err != nil {
 		return nil, nil, fmt.Errorf("invalid_client %s", err)
@@ -187,7 +189,6 @@ func PerformAuthentication(clientID, clientSecret, grantType, email, password, s
 		return nil, nil, fmt.Errorf("invalid_scope")
 	}
 
-	database := db.Database.DB
 	user, err := models.GetUserByEmail(email, database)
 
 	if err != nil {
@@ -212,4 +213,33 @@ func PerformAuthentication(clientID, clientSecret, grantType, email, password, s
 	// }
 
 	return client, user, nil
+}
+
+func BasicAuthentication(request *http.Request, clientID string) error {
+	authHeader := request.Header.Get("Authorization")
+	if authHeader == "" {
+		return fmt.Errorf("invalid authorization header")
+	}
+	creds, err := base64.StdEncoding.DecodeString(authHeader[len("Basic "):])
+
+	if err != nil {
+		return fmt.Errorf("invalid authorization header")
+	}
+
+	username := strings.Split(string(creds), ":")[0]
+	password := strings.Split(string(creds), ":")[1]
+
+	if username != clientID {
+		return fmt.Errorf("invalid client ID")
+	}
+
+	database := &db.Database.DB
+	client, err := models.GetClientByClientID(clientID, *database)
+	if err != nil {
+		return fmt.Errorf("invalid client id")
+	}
+	if !client.ValidateSecret(password) {
+		return fmt.Errorf("invalid client secret")
+	}
+	return nil
 }

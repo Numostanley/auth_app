@@ -19,10 +19,19 @@ func CreateUserHandler(w http.ResponseWriter, r *http.Request) {
 		Error:   "",
 	}
 
+	userClientID := models.AppClients.MobileAppClient
+	err := utils.BasicAuthentication(r, userClientID)
+	if err != nil {
+		data.Error = fmt.Sprintf("Authorization Error: %v", err)
+		data.Success = false
+		utils.RespondWithError(w, 400, data)
+		return
+	}
+
 	var newUser models.User
 
 	decoder := json.NewDecoder(r.Body)
-	err := decoder.Decode(&newUser)
+	err = decoder.Decode(&newUser)
 	if err != nil {
 		data.Error = fmt.Sprintf("Error parsing JSON: %v", err)
 		data.Success = false
@@ -41,6 +50,8 @@ func CreateUserHandler(w http.ResponseWriter, r *http.Request) {
 	response := serializers.UserDetailSerializer{}
 	data.Data = response.GetUserResponse(&newUser)
 	data.Message = "User Created Successfully"
+
+	go utils.VerificationEmail(&newUser)
 
 	utils.RespondWithJSON(w, 200, data)
 }
