@@ -195,9 +195,9 @@ func PerformAuthentication(clientID, clientSecret, grantType, email, password, s
 		return client, nil, fmt.Errorf("invalid_user %s", err)
 	}
 
-	// if !user.IsEmailVerified {
-	// 	return client, nil, fmt.Errorf("invalid_user")
-	// }
+	if !user.IsEmailVerified {
+		return client, nil, fmt.Errorf("email not verified")
+	}
 
 	if !user.ValidatePassword(password) {
 		return client, nil, fmt.Errorf("invalid_user_credentials")
@@ -233,8 +233,8 @@ func BasicAuthentication(request *http.Request, clientID string) error {
 		return fmt.Errorf("invalid client ID")
 	}
 
-	database := &db.Database.DB
-	client, err := models.GetClientByClientID(clientID, *database)
+	database := db.Database.DB
+	client, err := models.GetClientByClientID(clientID, database)
 	if err != nil {
 		return fmt.Errorf("invalid client id")
 	}

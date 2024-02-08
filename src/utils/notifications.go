@@ -7,6 +7,7 @@ import (
 	"os"
 	"text/template"
 
+	"github.com/Numostanley/d8er_app/db"
 	"github.com/Numostanley/d8er_app/env"
 	"github.com/Numostanley/d8er_app/models"
 	"gopkg.in/gomail.v2"
@@ -23,13 +24,17 @@ func VerificationEmail(user *models.User) {
 		log.Fatal(err)
 	}
 
+	database := db.Database.DB
+	vCode := models.CreateVerificationCode(user, database)
+
 	data := struct {
 		Code string
 		Name string
 	}{
-		Code: GenerateOTP(),
+		Code: vCode.Code,
 		Name: user.GetFullName(),
 	}
+
 	var resultBytes bytes.Buffer
 	err = tmpl.Execute(&resultBytes, data)
 	if err != nil {
@@ -50,10 +55,10 @@ func sendEmail(htmlBody string, toEmail string, subject string) {
 	email.SetHeader("Subject", subject)
 	email.SetBody("text/html", htmlBody)
 
-	dialer := gomail.NewDialer("smtp.hostinger.com", 465, enV.EmailUser, enV.EmailPassword)
-	dialer.TLSConfig = &tls.Config{InsecureSkipVerify: false, ServerName: "smtp.hostinger.com"}
+	dialer := gomail.NewDialer(enV.EmailHost, 465, enV.EmailUser, enV.EmailPassword)
+	dialer.TLSConfig = &tls.Config{InsecureSkipVerify: false, ServerName: enV.EmailHost}
 
 	if err := dialer.DialAndSend(email); err != nil {
-		log.Panicln(err)
+		log.Println(err)
 	}
 }

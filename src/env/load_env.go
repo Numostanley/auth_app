@@ -23,6 +23,7 @@ type GetEnv struct {
 	AllowedHosts           string
 	EmailUser              string
 	EmailPassword          string
+	EmailHost              string
 }
 
 func (env *GetEnv) LoadEnv() {
@@ -45,7 +46,7 @@ func (env *GetEnv) LoadEnv() {
 	env.getRefreshTokenExpiryTime()
 	env.getEmailUser()
 	env.getEmailPassword()
-
+	env.getEmailHost()
 }
 
 func (env *GetEnv) getPortSring() {
@@ -166,4 +167,12 @@ func (env *GetEnv) getEmailPassword() {
 		log.Fatal("EMAIL_PASSWORD not found in the environment")
 	}
 	env.EmailPassword = string(emailPassword)
+}
+
+func (env *GetEnv) getEmailHost() {
+	emailHost := os.Getenv("EMAIL_HOST")
+	if emailHost == "" {
+		log.Fatal("EMAIL_HOST not found in the environment")
+	}
+	env.EmailHost = string(emailHost)
 }

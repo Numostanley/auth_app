@@ -3,6 +3,7 @@ package models
 import (
 	"errors"
 	"fmt"
+	"math/rand"
 	"regexp"
 	"time"
 
@@ -11,6 +12,45 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
+
+type VerificationCode struct {
+	*gorm.Model
+	UserID  uuid.UUID `json:"user_id" gorm:"type:uuid;not null;uniqueIndex"`
+	Code    string    `json:"code" gorm:"type:text;not null"`
+	IsValid bool      `json:"is_valid" gorm:"default:True"`
+}
+
+func (vCode *VerificationCode) VerifyCodeValidity() bool {
+	date := &vCode.UpdatedAt
+	if date != nil {
+		timeDifference := time.Since(*date)
+		return timeDifference < 30*time.Minute
+	}
+	return false
+}
+
+func GetCode(db *gorm.DB, code string) (*VerificationCode, error) {
+	var vCode VerificationCode
+	result := db.Where("code = ?", code).First(&vCode)
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		return &vCode, fmt.Errorf("invalid code")
+	}
+	return &vCode, nil
+}
+
+func CreateVerificationCode(user *User, db *gorm.DB) *VerificationCode {
+	vCode := VerificationCode{UserID: user.ID}
+	result := db.Where("user_id = ?", user.ID).First(&vCode)
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		vCode.Code = GenerateOTP()
+		db.Create(&vCode)
+		return &vCode
+	} else {
+		vCode.Code = GenerateOTP()
+		db.Save(&vCode)
+		return &vCode
+	}
+}
 
 type User struct {
 	ID              uuid.UUID  `json:"id" gorm:"type:uuid;primaryKey"`
@@ -194,4 +234,10 @@ func ValidatePassword(password string) error {
 	}
 
 	return nil
+}
+
+func GenerateOTP() string {
+	rand.NewSource(time.Now().UnixNano())
+	otp := rand.Intn(900000) + 100000
+	return fmt.Sprintf("%06d", otp)
 }

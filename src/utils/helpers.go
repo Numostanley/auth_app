@@ -2,12 +2,9 @@ package utils
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
-	"math/rand"
 	"net/http"
 	"os"
-	"time"
 
 	"github.com/Numostanley/d8er_app/db"
 	"github.com/Numostanley/d8er_app/models"
@@ -85,10 +82,4 @@ func SeedClient() {
 			)
 		}
 	}
-}
-
-func GenerateOTP() string {
-	rand.NewSource(time.Now().UnixNano())
-	otp := rand.Intn(900000) + 100000
-	return fmt.Sprintf("%06d", otp)
 }

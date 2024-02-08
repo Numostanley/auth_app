@@ -70,3 +70,68 @@ func GetUserHandler(w http.ResponseWriter, r *http.Request, user models.User) {
 
 	utils.RespondWithJSON(w, 200, data)
 }
+
+func VerifyEmailHandler(w http.ResponseWriter, r *http.Request) {
+	data := serializers.ResponseSerializer{
+		Success: true,
+		Message: "",
+		Data:    struct{}{},
+		Error:   "",
+	}
+
+	userClientID := models.AppClients.MobileAppClient
+	err := utils.BasicAuthentication(r, userClientID)
+	if err != nil {
+		data.Error = fmt.Sprintf("Authorization Error: %v", err)
+		data.Success = false
+		utils.RespondWithError(w, 400, data)
+		return
+	}
+
+	var requestMap map[string]string
+	decoder := json.NewDecoder(r.Body)
+	err = decoder.Decode(&requestMap)
+	if err != nil {
+		data.Error = fmt.Sprintf("Error parsing JSON: %v", err)
+		data.Success = false
+		utils.RespondWithError(w, 400, data)
+		return
+	}
+
+	database := db.Database.DB
+	code := requestMap["code"]
+	email := requestMap["email"]
+
+	vCode, err := models.GetCode(database, code)
+	if err != nil {
+		data.Error = fmt.Sprintf("Error validating code: %v", err)
+		data.Success = false
+		utils.RespondWithError(w, 400, data)
+		return
+	}
+
+	if !vCode.VerifyCodeValidity() || !vCode.IsValid {
+		data.Error = "Code already used or expired"
+		data.Success = false
+		utils.RespondWithError(w, 400, data)
+		return
+	}
+
+	user, err := models.GetUserByEmail(email, database)
+	if err != nil {
+		data.Error = fmt.Sprintf("Error validating user: %v", err)
+		data.Success = false
+		utils.RespondWithError(w, 400, data)
+		return
+	}
+	user.IsEmailVerified = true
+	database.Save(&user)
+
+	database.Model(&vCode).Update("is_valid", false)
+
+	response := serializers.UserDetailSerializer{}
+	data.Message = "Email verified successfully"
+	data.Data = response.GetUserResponse(user)
+
+	utils.RespondWithJSON(w, 200, data)
+}

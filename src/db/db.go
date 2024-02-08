@@ -62,7 +62,7 @@ func InitDB() {
 	}
 
 	log.Println("Running Migrations")
-	if err := db.AutoMigrate(&models.User{}, &models.Client{}); err != nil {
+	if err := db.AutoMigrate(&models.User{}, &models.Client{}, &models.VerificationCode{}); err != nil {
 		panic(err)
 	}
 	log.Println("Migrations Complete")
