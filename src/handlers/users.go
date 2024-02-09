@@ -229,7 +229,10 @@ func VerifyPasswordChangeHandler(w http.ResponseWriter, r *http.Request) {
 		utils.RespondWithError(w, 400, data)
 		return
 	}
-	user.SetNewPassword(password)
+	err = user.SetNewPassword(password)
+	if err != nil {
+		return
+	}
 	database.Save(&user)
 	database.Model(&vCode).Update("is_valid", false)
 
