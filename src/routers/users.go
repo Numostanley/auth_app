@@ -12,6 +12,8 @@ func GetUserRouters() *chi.Mux {
 	userRouter.Post("/", handlers.CreateUserHandler)
 	userRouter.Get("/", middlewares.AuthenticationMiddleware(handlers.GetUserHandler))
 	userRouter.Post("/verify_email", handlers.VerifyEmailHandler)
+	userRouter.Get("/request_code", handlers.RequestCodeHandler)
+	userRouter.Post("/verify_password_change", handlers.VerifyPasswordChangeHandler)
 
 	return userRouter
 }

@@ -43,10 +43,12 @@ func CreateVerificationCode(user *User, db *gorm.DB) *VerificationCode {
 	result := db.Where("user_id = ?", user.ID).First(&vCode)
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		vCode.Code = GenerateOTP()
+		vCode.IsValid = true
 		db.Create(&vCode)
 		return &vCode
 	} else {
 		vCode.Code = GenerateOTP()
+		vCode.IsValid = true
 		db.Save(&vCode)
 		return &vCode
 	}

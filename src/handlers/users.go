@@ -135,3 +135,104 @@ func VerifyEmailHandler(w http.ResponseWriter, r *http.Request) {
 
 	utils.RespondWithJSON(w, 200, data)
 }
+
+func RequestCodeHandler(w http.ResponseWriter, r *http.Request) {
+	data := serializers.ResponseSerializer{
+		Success: true,
+		Message: "",
+		Data:    struct{}{},
+		Error:   "",
+	}
+
+	userClientID := models.AppClients.MobileAppClient
+	err := utils.BasicAuthentication(r, userClientID)
+	if err != nil {
+		data.Error = fmt.Sprintf("Authorization Error: %v", err)
+		data.Success = false
+		utils.RespondWithError(w, 400, data)
+		return
+	}
+
+	database := db.Database.DB
+	email := r.URL.Query().Get("email")
+	if email == "" {
+		data.Error = "email is required"
+		data.Success = false
+		utils.RespondWithError(w, 400, data)
+		return
+	}
+	user, err := models.GetUserByEmail(email, database)
+	if err != nil {
+		data.Error = fmt.Sprintf("Error validating user: %v", err)
+		data.Success = false
+		utils.RespondWithError(w, 400, data)
+		return
+	}
+	data.Message = "Verification code sent to user"
+
+	go utils.VerificationEmail(user)
+	utils.RespondWithJSON(w, 200, data)
+
+}
+
+func VerifyPasswordChangeHandler(w http.ResponseWriter, r *http.Request) {
+	data := serializers.ResponseSerializer{
+		Success: true,
+		Message: "",
+		Data:    struct{}{},
+		Error:   "",
+	}
+
+	userClientID := models.AppClients.MobileAppClient
+	err := utils.BasicAuthentication(r, userClientID)
+	if err != nil {
+		data.Error = fmt.Sprintf("Authorization Error: %v", err)
+		data.Success = false
+		utils.RespondWithError(w, 400, data)
+		return
+	}
+
+	var requestMap map[string]string
+	decoder := json.NewDecoder(r.Body)
+	err = decoder.Decode(&requestMap)
+	if err != nil {
+		data.Error = fmt.Sprintf("Error parsing JSON: %v", err)
+		data.Success = false
+		utils.RespondWithError(w, 400, data)
+		return
+	}
+
+	database := db.Database.DB
+	code := requestMap["code"]
+	email := requestMap["email"]
+	password := requestMap["password"]
+
+	vCode, err := models.GetCode(database, code)
+	if err != nil {
+		data.Error = fmt.Sprintf("Error validating code: %v", err)
+		data.Success = false
+		utils.RespondWithError(w, 400, data)
+		return
+	}
+
+	if !vCode.VerifyCodeValidity() || !vCode.IsValid {
+		data.Error = "Code already used or expired"
+		data.Success = false
+		utils.RespondWithError(w, 400, data)
+		return
+	}
+
+	user, err := models.GetUserByEmail(email, database)
+	if err != nil {
+		data.Error = fmt.Sprintf("Error validating user: %v", err)
+		data.Success = false
+		utils.RespondWithError(w, 400, data)
+		return
+	}
+	user.SetNewPassword(password)
+	database.Save(&user)
+	database.Model(&vCode).Update("is_valid", false)
+
+	data.Message = "User Password changed successfully"
+	utils.RespondWithJSON(w, 200, data)
+}

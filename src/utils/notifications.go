@@ -41,7 +41,7 @@ func VerificationEmail(user *models.User) {
 		log.Fatal(err)
 	}
 	resultString := resultBytes.String()
-	subject := "Your Email Verification Code"
+	subject := "Verification Code"
 	sendEmail(resultString, user.Email, subject)
 }
 
