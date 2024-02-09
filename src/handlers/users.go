@@ -56,7 +56,7 @@ func CreateUserHandler(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, 200, data)
 }
 
-func GetUserHandler(w http.ResponseWriter, r *http.Request, user models.User) {
+func GetUserHandler(w http.ResponseWriter, _ *http.Request, user models.User) {
 	data := serializers.ResponseSerializer{
 		Success: true,
 		Message: "",
@@ -172,7 +172,6 @@ func RequestCodeHandler(w http.ResponseWriter, r *http.Request) {
 
 	go utils.VerificationEmail(user)
 	utils.RespondWithJSON(w, 200, data)
-
 }
 
 func VerifyPasswordChangeHandler(w http.ResponseWriter, r *http.Request) {
@@ -231,11 +230,64 @@ func VerifyPasswordChangeHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	err = user.SetNewPassword(password)
 	if err != nil {
+		data.Error = fmt.Sprintf("Error setting new password: %v", err)
+		data.Success = false
+		utils.RespondWithError(w, 400, data)
 		return
 	}
 	database.Save(&user)
 	database.Model(&vCode).Update("is_valid", false)
 
 	data.Message = "User Password changed successfully"
+	utils.RespondWithJSON(w, 200, data)
+}
+
+func PasswordResetHandler(w http.ResponseWriter, r *http.Request, user models.User) {
+	data := serializers.ResponseSerializer{
+		Success: true,
+		Message: "",
+		Data:    struct{}{},
+		Error:   "",
+	}
+
+	var requestMap map[string]string
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(&requestMap)
+	if err != nil {
+		data.Error = fmt.Sprintf("Error parsing JSON: %v", err)
+		data.Success = false
+		utils.RespondWithError(w, 400, data)
+		return
+	}
+
+	database := db.Database.DB
+	password := requestMap["password"]
+	password2 := requestMap["password2"]
+
+	if password != password2 {
+		data.Error = "Passwords must match!!!"
+		data.Success = false
+		utils.RespondWithError(w, 400, data)
+		return
+	}
+
+	err = models.ValidatePassword(password)
+	if err != nil {
+		data.Error = fmt.Sprintf("Error validating password: %v", err)
+		data.Success = false
+		utils.RespondWithError(w, 400, data)
+		return
+	}
+
+	err = user.SetNewPassword(password)
+	if err != nil {
+		data.Error = fmt.Sprintf("Error setting new password: %v", err)
+		data.Success = false
+		utils.RespondWithError(w, 400, data)
+		return
+	}
+	database.Save(&user)
+
+	data.Message = "User Password reset successfully"
 	utils.RespondWithJSON(w, 200, data)
 }

@@ -68,12 +68,12 @@ func SeedClient() {
 		log.Println("error decoding json: ", err)
 	}
 
-	database := &db.Database.DB
+	database := db.Database.DB
 	for _, client := range clientParams {
-		_, err := models.GetClientByClientID(client.ClientID, *database)
+		_, err := models.GetClientByClientID(client.ClientID, database)
 
 		if err != nil {
-			err := models.CreateClient(*database, &client)
+			err := models.CreateClient(database, &client)
 			if err != nil {
 				return
 			}

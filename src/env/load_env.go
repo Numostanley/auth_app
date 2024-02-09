@@ -31,7 +31,7 @@ func (env *GetEnv) LoadEnv() {
 	if err != nil {
 		log.Fatal("Error loading .env file", err)
 	}
-	env.getPortSring()
+	env.getPortString()
 	env.getPostgresHost()
 	env.getPostgresUser()
 	env.getPostgresDB()
@@ -49,12 +49,12 @@ func (env *GetEnv) LoadEnv() {
 	env.getEmailHost()
 }
 
-func (env *GetEnv) getPortSring() {
+func (env *GetEnv) getPortString() {
 	portString := os.Getenv("PORT")
 	if portString == "" {
 		log.Fatal("PORT not found in the environment")
 	}
-	env.PortString = string(portString)
+	env.PortString = portString
 }
 
 func (env *GetEnv) getPostgresHost() {
@@ -62,7 +62,7 @@ func (env *GetEnv) getPostgresHost() {
 	if postgresHost == "" {
 		log.Fatal("PG_HOST not found in the environment")
 	}
-	env.PostgresHost = string(postgresHost)
+	env.PostgresHost = postgresHost
 }
 
 func (env *GetEnv) getPostgresUser() {
@@ -70,7 +70,7 @@ func (env *GetEnv) getPostgresUser() {
 	if postgresUser == "" {
 		log.Fatal("PG_USER not found in the environment")
 	}
-	env.PostgresUser = string(postgresUser)
+	env.PostgresUser = postgresUser
 }
 
 func (env *GetEnv) getPostgresDB() {
@@ -78,7 +78,7 @@ func (env *GetEnv) getPostgresDB() {
 	if postgresDB == "" {
 		log.Fatal("PG_DATABASE not found in the environment")
 	}
-	env.PostgresDB = string(postgresDB)
+	env.PostgresDB = postgresDB
 }
 
 func (env *GetEnv) getPostgresPassword() {
@@ -86,7 +86,7 @@ func (env *GetEnv) getPostgresPassword() {
 	if postgresPassword == "" {
 		log.Fatal("PG_PASSWORD not found in the environment")
 	}
-	env.PostgresPassword = string(postgresPassword)
+	env.PostgresPassword = postgresPassword
 }
 
 func (env *GetEnv) getPostgresPort() {
@@ -94,7 +94,7 @@ func (env *GetEnv) getPostgresPort() {
 	if postgresPort == "" {
 		log.Fatal("PG_PORT not found in the environment")
 	}
-	env.PostgresPort = string(postgresPort)
+	env.PostgresPort = postgresPort
 }
 
 func (env *GetEnv) getAllowedHosts() {
@@ -102,7 +102,7 @@ func (env *GetEnv) getAllowedHosts() {
 	if allowedHosts == "" {
 		log.Fatal("ALLOWED_HOSTS not found in the environment")
 	}
-	env.AllowedHosts = string(allowedHosts)
+	env.AllowedHosts = allowedHosts
 }
 
 func (env *GetEnv) getSigningAlgorithm() {
@@ -110,7 +110,7 @@ func (env *GetEnv) getSigningAlgorithm() {
 	if signingAlgorithm == "" {
 		log.Fatal("SIGNING_ALGORITHM not found in the environment")
 	}
-	env.SigningAlgorithm = string(signingAlgorithm)
+	env.SigningAlgorithm = signingAlgorithm
 }
 
 func (env *GetEnv) getPrivateKeyPath() {
@@ -118,7 +118,7 @@ func (env *GetEnv) getPrivateKeyPath() {
 	if privateKeyPath == "" {
 		log.Fatal("PRIVATE_KEY_FILE_PATH not found in the environment")
 	}
-	env.PrivateKeyPath = string(privateKeyPath)
+	env.PrivateKeyPath = privateKeyPath
 }
 
 func (env *GetEnv) getIssuer() {
@@ -126,7 +126,7 @@ func (env *GetEnv) getIssuer() {
 	if issuer == "" {
 		log.Fatal("ISSUER not found in the environment")
 	}
-	env.Issuer = string(issuer)
+	env.Issuer = issuer
 }
 
 func (env *GetEnv) getPublicKeyPath() {
@@ -134,7 +134,7 @@ func (env *GetEnv) getPublicKeyPath() {
 	if publicKeyPath == "" {
 		log.Fatal("PUBLIC_KEY_FILE_PATH not found in the environment")
 	}
-	env.PublicKeyPath = string(publicKeyPath)
+	env.PublicKeyPath = publicKeyPath
 }
 
 func (env *GetEnv) getTokenExpiryTime() {
@@ -142,7 +142,7 @@ func (env *GetEnv) getTokenExpiryTime() {
 	if tokenExpiryTime == "" {
 		log.Fatal("TOKEN_EXPIRY_TIME not found in the environment")
 	}
-	env.TokenExpiryTime = string(tokenExpiryTime)
+	env.TokenExpiryTime = tokenExpiryTime
 }
 
 func (env *GetEnv) getRefreshTokenExpiryTime() {
@@ -150,7 +150,7 @@ func (env *GetEnv) getRefreshTokenExpiryTime() {
 	if refreshTokenExpiryTime == "" {
 		log.Fatal("REFRESH_TOKEN_EXPIRY_TIME not found in the environment")
 	}
-	env.RefreshTokenExpiryTime = string(refreshTokenExpiryTime)
+	env.RefreshTokenExpiryTime = refreshTokenExpiryTime
 }
 
 func (env *GetEnv) getEmailUser() {
@@ -158,7 +158,7 @@ func (env *GetEnv) getEmailUser() {
 	if emailUser == "" {
 		log.Fatal("EMAIL_USER not found in the environment")
 	}
-	env.EmailUser = string(emailUser)
+	env.EmailUser = emailUser
 }
 
 func (env *GetEnv) getEmailPassword() {
@@ -166,7 +166,7 @@ func (env *GetEnv) getEmailPassword() {
 	if emailPassword == "" {
 		log.Fatal("EMAIL_PASSWORD not found in the environment")
 	}
-	env.EmailPassword = string(emailPassword)
+	env.EmailPassword = emailPassword
 }
 
 func (env *GetEnv) getEmailHost() {
@@ -174,5 +174,5 @@ func (env *GetEnv) getEmailHost() {
 	if emailHost == "" {
 		log.Fatal("EMAIL_HOST not found in the environment")
 	}
-	env.EmailHost = string(emailHost)
+	env.EmailHost = emailHost
 }

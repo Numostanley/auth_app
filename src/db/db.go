@@ -16,7 +16,7 @@ import (
 
 type CustomLogger struct{}
 
-func (l *CustomLogger) LogMode(level logger.LogLevel) logger.Interface {
+func (l *CustomLogger) LogMode(_ logger.LogLevel) logger.Interface {
 	return l
 }
 
@@ -26,7 +26,7 @@ func (l *CustomLogger) Warn(context.Context, string, ...interface{}) {}
 
 func (l *CustomLogger) Error(context.Context, string, ...interface{}) {}
 
-func (l *CustomLogger) Trace(ctx context.Context, begin time.Time, fc func() (string, int64), err error) {
+func (l *CustomLogger) Trace(_ context.Context, begin time.Time, fc func() (string, int64), err error) {
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		// Log only if it's an error other than RecordNotFound
 		sql, rows := fc()

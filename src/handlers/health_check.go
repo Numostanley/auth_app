@@ -6,7 +6,7 @@ import (
 	"github.com/Numostanley/d8er_app/utils"
 )
 
-func HandlerReadiness(w http.ResponseWriter, r *http.Request) {
+func HandlerReadiness(w http.ResponseWriter, _ *http.Request) {
 	response := struct {
 		Message string `json:"message"`
 	}{

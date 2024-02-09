@@ -2,7 +2,7 @@ package routers
 
 import (
 	"github.com/Numostanley/d8er_app/handlers"
-	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/v5"
 )
 
 func GetAuthRouters() *chi.Mux {

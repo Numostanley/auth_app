@@ -3,7 +3,7 @@ package routers
 import (
 	"github.com/Numostanley/d8er_app/handlers"
 	"github.com/Numostanley/d8er_app/middlewares"
-	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/v5"
 )
 
 func GetUserRouters() *chi.Mux {
@@ -14,6 +14,7 @@ func GetUserRouters() *chi.Mux {
 	userRouter.Post("/verify_email", handlers.VerifyEmailHandler)
 	userRouter.Get("/request_code", handlers.RequestCodeHandler)
 	userRouter.Post("/verify_password_change", handlers.VerifyPasswordChangeHandler)
+	userRouter.Post("/password_reset", middlewares.AuthenticationMiddleware(handlers.PasswordResetHandler))
 
 	return userRouter
 }
