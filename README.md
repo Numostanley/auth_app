@@ -65,6 +65,8 @@ EMAIL_PASSWORD="ExamplePassword@1"  // change to your email password
 
 EMAIL_HOST="smtp.gmail.com"  // change to your email host
 ```
+Without these, user verification emails will not be sent.
+<br/>
 
 Also change the ISSUER settings in the env file to your application url or host
 ```
