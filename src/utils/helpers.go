@@ -6,9 +6,9 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/Numostanley/d8er_app/db"
-	"github.com/Numostanley/d8er_app/models"
-	"github.com/Numostanley/d8er_app/serializers"
+	"github.com/Numostanley/auth_app/db"
+	"github.com/Numostanley/auth_app/models"
+	"github.com/Numostanley/auth_app/serializers"
 )
 
 func RespondWithError(w http.ResponseWriter, code int, data serializers.ResponseSerializer) {

@@ -5,7 +5,7 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/Numostanley/d8er_app/env"
+	"github.com/Numostanley/auth_app/env"
 )
 
 type OauthConfig struct {

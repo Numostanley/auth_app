@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Numostanley/d8er_app/db"
-	"github.com/Numostanley/d8er_app/models"
+	"github.com/Numostanley/auth_app/db"
+	"github.com/Numostanley/auth_app/models"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/google/uuid"
 )
@@ -207,10 +207,6 @@ func PerformAuthentication(clientID, clientSecret, grantType, email, password, s
 
 		return client, nil, fmt.Errorf("invalid_client_and_user")
 	}
-
-	// if user.HasActiveSession() {
-	// 	return client, nil, fmt.Errorf("user_has_an_active_session")
-	// }
 
 	return client, user, nil
 }

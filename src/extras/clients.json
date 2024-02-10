@@ -6,7 +6,7 @@
       "response_type": "code",
       "scope": "admin:write admin:read",
       "grant_types": "password authorization_code refresh_token",
-      "redirect_uris": "https://api.d8er.app/admin"
+      "redirect_uris": "https://api.example.com/v1/admin"
     },
     {
       "client_id": "MobileAppClient",
@@ -15,6 +15,6 @@
       "response_type": "code",
       "scope": "user:write user:read",
       "grant_types": "password authorization_code refresh_token",
-      "redirect_uris": "https://api.d8er.app/mobile"
+      "redirect_uris": "https://api.example.com/v1/mobile"
     }
 ]

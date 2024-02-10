@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/Numostanley/d8er_app/models"
-	"github.com/Numostanley/d8er_app/serializers"
-	"github.com/Numostanley/d8er_app/utils"
+	"github.com/Numostanley/auth_app/models"
+	"github.com/Numostanley/auth_app/serializers"
+	"github.com/Numostanley/auth_app/utils"
 )
 
 type authedHandler func(http.ResponseWriter, *http.Request, models.User)

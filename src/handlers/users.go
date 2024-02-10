@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/Numostanley/d8er_app/db"
-	"github.com/Numostanley/d8er_app/models"
-	"github.com/Numostanley/d8er_app/serializers"
-	"github.com/Numostanley/d8er_app/utils"
+	"github.com/Numostanley/auth_app/db"
+	"github.com/Numostanley/auth_app/models"
+	"github.com/Numostanley/auth_app/serializers"
+	"github.com/Numostanley/auth_app/utils"
 )
 
 func CreateUserHandler(w http.ResponseWriter, r *http.Request) {

@@ -4,10 +4,10 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/Numostanley/d8er_app/db"
-	"github.com/Numostanley/d8er_app/env"
-	"github.com/Numostanley/d8er_app/routers"
-	"github.com/Numostanley/d8er_app/utils"
+	"github.com/Numostanley/auth_app/db"
+	"github.com/Numostanley/auth_app/env"
+	"github.com/Numostanley/auth_app/routers"
+	"github.com/Numostanley/auth_app/utils"
 )
 
 func main() {

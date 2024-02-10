@@ -7,8 +7,8 @@ import (
 	"log"
 	"time"
 
-	"github.com/Numostanley/d8er_app/env"
-	"github.com/Numostanley/d8er_app/models"
+	"github.com/Numostanley/auth_app/env"
+	"github.com/Numostanley/auth_app/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"

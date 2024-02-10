@@ -121,15 +121,6 @@ func (user *User) ValidatePassword(password string) bool {
 	return err == nil
 }
 
-func (user *User) HasActiveSession() bool {
-	lastLogin := user.LastLogin
-	if lastLogin != nil {
-		timeDifference := time.Since(*lastLogin)
-		return timeDifference < 30*time.Minute
-	}
-	return false
-}
-
 func (user *User) SetNewPassword(password string) error {
 	password, err := HashPassword(password)
 	if err != nil {

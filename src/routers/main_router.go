@@ -3,9 +3,9 @@ package routers
 import (
 	"strings"
 
-	"github.com/Numostanley/d8er_app/env"
-	"github.com/Numostanley/d8er_app/handlers"
-	"github.com/Numostanley/d8er_app/middlewares"
+	"github.com/Numostanley/auth_app/env"
+	"github.com/Numostanley/auth_app/handlers"
+	"github.com/Numostanley/auth_app/middlewares"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/cors"
 )

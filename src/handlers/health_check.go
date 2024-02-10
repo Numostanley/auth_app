@@ -3,7 +3,7 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/Numostanley/d8er_app/utils"
+	"github.com/Numostanley/auth_app/utils"
 )
 
 func HandlerReadiness(w http.ResponseWriter, _ *http.Request) {
