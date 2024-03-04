@@ -8,6 +8,6 @@ RUN go mod tidy
 
 RUN go mod vendor
 
-CMD ["go", "run", "main.go"]
+CMD ["go", "run", "cmd/auth_app/main.go"]
 
 EXPOSE 8000

@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Numostanley/auth_app/db"
-	"github.com/Numostanley/auth_app/models"
+	"github.com/Numostanley/auth_app/internal/db"
+	"github.com/Numostanley/auth_app/internal/models"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/google/uuid"
 )

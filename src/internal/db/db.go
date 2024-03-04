@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/Numostanley/auth_app/env"
-	"github.com/Numostanley/auth_app/models"
+	"github.com/Numostanley/auth_app/internal/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"

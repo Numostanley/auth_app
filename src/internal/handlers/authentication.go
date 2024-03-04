@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/Numostanley/auth_app/serializers"
-	"github.com/Numostanley/auth_app/utils"
+	"github.com/Numostanley/auth_app/internal/serializers"
+	"github.com/Numostanley/auth_app/internal/utils"
 )
 
 func AuthHandler(w http.ResponseWriter, r *http.Request) {

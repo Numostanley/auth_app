@@ -53,7 +53,7 @@ PG_HOST="localhost"  // or your database host
 
 Running the Project
 ```
-go run main.go
+go run cmd/auth_app/main.go
 ```
 
 # NOTE:

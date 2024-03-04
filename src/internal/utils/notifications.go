@@ -7,9 +7,9 @@ import (
 	"os"
 	"text/template"
 
-	"github.com/Numostanley/auth_app/db"
 	"github.com/Numostanley/auth_app/env"
-	"github.com/Numostanley/auth_app/models"
+	"github.com/Numostanley/auth_app/internal/db"
+	"github.com/Numostanley/auth_app/internal/models"
 	"gopkg.in/gomail.v2"
 )
 

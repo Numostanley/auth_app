@@ -22,11 +22,8 @@ type VerificationCode struct {
 
 func (vCode *VerificationCode) VerifyCodeValidity() bool {
 	date := &vCode.UpdatedAt
-	if date != nil {
-		timeDifference := time.Since(*date)
-		return timeDifference < 30*time.Minute
-	}
-	return false
+	timeDifference := time.Since(*date)
+	return timeDifference < 30*time.Minute
 }
 
 func GetCode(db *gorm.DB, code string) (*VerificationCode, error) {

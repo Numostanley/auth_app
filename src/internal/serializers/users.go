@@ -3,7 +3,7 @@ package serializers
 import (
 	"time"
 
-	"github.com/Numostanley/auth_app/models"
+	"github.com/Numostanley/auth_app/internal/models"
 	"github.com/google/uuid"
 )
 
