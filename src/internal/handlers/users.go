@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/Numostanley/auth_app/db"
-	"github.com/Numostanley/auth_app/models"
-	"github.com/Numostanley/auth_app/serializers"
-	"github.com/Numostanley/auth_app/utils"
+	"github.com/Numostanley/auth_app/internal/db"
+	"github.com/Numostanley/auth_app/internal/models"
+	"github.com/Numostanley/auth_app/internal/serializers"
+	"github.com/Numostanley/auth_app/internal/utils"
 )
 
 func CreateUserHandler(w http.ResponseWriter, r *http.Request) {

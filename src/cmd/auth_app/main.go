@@ -4,10 +4,10 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/Numostanley/auth_app/db"
 	"github.com/Numostanley/auth_app/env"
-	"github.com/Numostanley/auth_app/routers"
-	"github.com/Numostanley/auth_app/utils"
+	"github.com/Numostanley/auth_app/internal/db"
+	"github.com/Numostanley/auth_app/internal/routers"
+	"github.com/Numostanley/auth_app/internal/utils"
 )
 
 func main() {

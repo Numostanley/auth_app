@@ -1,7 +1,7 @@
 package routers
 
 import (
-	"github.com/Numostanley/auth_app/handlers"
+	"github.com/Numostanley/auth_app/internal/handlers"
 	"github.com/go-chi/chi/v5"
 )
 
